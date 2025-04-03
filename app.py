@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for
 import os
-from faster_whisper import WhisperModel
+import whisper
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = 'uploads'
@@ -11,7 +11,7 @@ os.makedirs(TRANSCRIPT_FOLDER, exist_ok=True)
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-model = WhisperModel("tiny", compute_type="int8")  # 軽量な tiny モデル
+model = whisper.load_model("tiny")  # 軽量な tiny モデル
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -24,8 +24,8 @@ def index():
             filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
             file.save(filepath)
 
-            segments, _ = model.transcribe(filepath, language="ja")
-            transcript_text = "\n".join([seg.text for seg in segments])
+            result = model.transcribe(filepath, language="ja", task="transcribe")
+            transcript_text = result["text"]
 
             output_path = os.path.join(TRANSCRIPT_FOLDER, filename + ".txt")
             with open(output_path, "w", encoding="utf-8") as f:

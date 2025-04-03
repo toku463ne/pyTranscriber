@@ -1,0 +1,12 @@
+[Unit]
+Description=Gunicorn for pyTranscriber
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/root/pyTranscriber
+ExecStart=/root/pyTranscriber/venv/bin/gunicorn --workers 3 --bind unix:/tmp/pytranscriber.sock app:app
+
+[Install]
+WantedBy=multi-user.target
