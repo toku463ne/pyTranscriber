@@ -6,3 +6,6 @@ __pycache__
 *.pyo
 *.pyd
 *.db
+transcripts/*.txt
+uploads/*.mp3
+uploads/*.wav
