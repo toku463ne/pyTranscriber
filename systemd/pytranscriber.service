@@ -6,6 +6,7 @@ After=network.target
 User=root
 Group=www-data
 WorkingDirectory=/root/pyTranscriber
+EnvironmentFile=/root/.creds/pytranscriber.env
 ExecStart=/root/pyTranscriber/venv/bin/gunicorn --workers 3 --bind unix:/tmp/pytranscriber.sock app:app
 
 [Install]

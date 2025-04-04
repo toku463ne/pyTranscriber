@@ -6,21 +6,25 @@ if [ $# -ne 1 ];then
 fi
 domain=$1
 
-apt update
-apt install -y nginx python3-pip python3.12-venv ffmpeg
+sudo apt update
+sudo apt install -y nginx python3-pip python3-venv ffmpeg
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-cp nginx/transcriber.conf /etc/nginx/sites-enabled
-sed -i "s/your.domain.com/$domain/g" /etc/nginx/sites-enabled/transcriber.conf
+sudo mkdir -p ${HOME}/.creds
+sudo touch ${HOME}/.creds/pytranscriber.env
+sudo chmod 700 ${HOME}/.creds/pytranscriber.env
 
-systemctl reload nginx
-cp systemd/pytranscriber.service /etc/systemd/system/pytranscriber.service
-systemctl daemon-reexec
-systemctl daemon-reload
-systemctl start pytranscriber
-systemctl enable pytranscriber
+sudo cp nginx/transcriber.conf /etc/nginx/sites-enabled
+sudo sed -i "s/your.domain.com/$domain/g" /etc/nginx/sites-enabled/transcriber.conf
+
+sudo systemctl reload nginx
+sudo cp systemd/pytranscriber.service /etc/systemd/system/pytranscriber.service
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+sudo systemctl start pytranscriber
+sudo systemctl enable pytranscriber
 
 
 #python app.py

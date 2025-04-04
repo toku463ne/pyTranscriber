@@ -3,6 +3,9 @@ import os
 import whisper
 model = whisper.load_model("base")
 from werkzeug.utils import secure_filename
+from openai import OpenAI
+
+client = OpenAI()
 
 UPLOAD_FOLDER = 'uploads'
 TRANSCRIPT_FOLDER = 'transcripts'
@@ -24,7 +27,21 @@ def index():
             filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
             file.save(filepath)
 
-            result = model.transcribe(filepath, language="ja")
+            api_key = os.environ.get("OPENAI_API_KEY", "")
+            if api_key == None or api_key == "":
+                result = model.transcribe(filepath, language="ja")
+            else:
+                with open(filepath, "rb") as audio_file:
+                    try:
+                        response = client.audio.transcriptions.create(
+                            model="gpt-4o-transcribe", 
+                            file=audio_file
+                        )
+                        result = {"text": response.text}
+                    except openai.error.RateLimitError:
+                        return render_template("index.html", error="API quota exceeded. Please check your OpenAI plan and billing details.")
+
+            # Save the transcript to a file
             transcript_text = result["text"]
 
             output_path = os.path.join(TRANSCRIPT_FOLDER, filename + ".txt")
@@ -34,6 +51,10 @@ def index():
             return render_template("index.html", transcript=transcript_text)
 
     return render_template("index.html", transcript=transcript)
+
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

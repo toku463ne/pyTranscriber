@@ -2,3 +2,4 @@ flask
 faster-whisper
 gunicorn
 openai-whisper
+openai
