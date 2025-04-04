@@ -28,9 +28,7 @@ def index():
             file.save(filepath)
 
             api_key = os.environ.get("OPENAI_API_KEY", "")
-            if api_key == None or api_key == "":
-                result = model.transcribe(filepath, language="ja")
-            else:
+            if len(api_key) > 2 and api_key[:2] == "sk":
                 with open(filepath, "rb") as audio_file:
                     try:
                         response = client.audio.transcriptions.create(
@@ -40,6 +38,9 @@ def index():
                         result = {"text": response.text}
                     except openai.error.RateLimitError:
                         return render_template("index.html", error="API quota exceeded. Please check your OpenAI plan and billing details.")
+            else:
+                # Use Whisper for transcription
+                result = model.transcribe(filepath, language="ja")
 
             # Save the transcript to a file
             transcript_text = result["text"]
