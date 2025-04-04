@@ -5,8 +5,6 @@ model = whisper.load_model("base")
 from werkzeug.utils import secure_filename
 from openai import OpenAI
 
-client = OpenAI()
-
 UPLOAD_FOLDER = 'uploads'
 TRANSCRIPT_FOLDER = 'transcripts'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -29,6 +27,7 @@ def index():
 
             api_key = os.environ.get("OPENAI_API_KEY", "")
             if len(api_key) > 2 and api_key[:2] == "sk":
+                client = OpenAI()
                 with open(filepath, "rb") as audio_file:
                     try:
                         response = client.audio.transcriptions.create(
