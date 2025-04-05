@@ -4,6 +4,7 @@ import whisper
 model = whisper.load_model("base")
 from werkzeug.utils import secure_filename
 from openai import OpenAI
+import torch
 
 UPLOAD_FOLDER = 'uploads'
 TRANSCRIPT_FOLDER = 'transcripts'
@@ -39,7 +40,12 @@ def index():
                         return render_template("index.html", error="API quota exceeded. Please check your OpenAI plan and billing details.")
             else:
                 # Use Whisper for transcription
-                result = model.transcribe(filepath, language="ja", fp16=True)
+                # Ensure the model runs on CPU to avoid out-of-memory errors on GPU
+                device = "cpu" if not torch.cuda.is_available() else "cuda"
+                model = whisper.load_model("base", device=device)
+
+                # Perform transcription
+                result = model.transcribe(filepath, language="ja", fp16=False)
 
             # Save the transcript to a file
             transcript_text = result["text"]
