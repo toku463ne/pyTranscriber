@@ -39,7 +39,7 @@ def index():
                         return render_template("index.html", error="API quota exceeded. Please check your OpenAI plan and billing details.")
             else:
                 # Use Whisper for transcription
-                result = model.transcribe(filepath, language="ja")
+                result = model.transcribe(filepath, language="ja", fp16=True)
 
             # Save the transcript to a file
             transcript_text = result["text"]
